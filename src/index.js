@@ -1,11 +1,77 @@
 import dotenv from 'dotenv';
 import connectDB from './db/index.js';
+import app from './app.js';
 
 dotenv.config({
     path: './env'
 })
 
-connectDB();
+connectDB()
+.then(() => {
+    app.listen(process.env.PORT || 8000, () => {
+        console.log(` Server is running on http://localhost:${process.env.PORT}`);
+    })
+})
+.catch((err) => {
+    console.log("MONGO db connection failed !!! ",err);
+})
+
+
+
+
+
+
+// app.use() ka use hm middleware or configuration me use karte hai
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /*
 // 1st approch
