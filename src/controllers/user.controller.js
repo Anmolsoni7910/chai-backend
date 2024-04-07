@@ -6,11 +6,6 @@ import { ApiResponse } from '../utils/ApiResponse.js';
 
 const registerUser = asyncHandler( async (req,res) => {
 
-    // create user object - create entry in db
-    // remove password and refresh token field from response
-    // check for user creation
-    // return res
-
     // get user details from frontend
     const {fullName, email, username, password } = req.body;
 
@@ -23,7 +18,7 @@ const registerUser = asyncHandler( async (req,res) => {
 
     // check if user already exists: username, email 
     // User from model can talk with database 
-    const existedUser = User.findOne({
+    const existedUser = await User.findOne({
         $or: [{ username },{ email }]
     })
 
@@ -39,6 +34,7 @@ const registerUser = asyncHandler( async (req,res) => {
         throw new ApiError(400, "Avatar file is required");
     }
 
+    // upload them to cloudinary, avatar
     const avatar = await uploadOnCloudinary(avatarLocalPath);
     const coverImage = await uploadOnCloudinary(coverImageLocalPath);
 
@@ -46,8 +42,7 @@ const registerUser = asyncHandler( async (req,res) => {
         throw new ApiError(400, "Avatar file is required");
     }
 
-    // upload them to cloudinary, avatar
-
+    // create user object - create entry in db
     const user = await User.create({
         fullName,
         avatar: avatar.url,
@@ -57,14 +52,17 @@ const registerUser = asyncHandler( async (req,res) => {
         username: username.toLowerCase()
     })
 
+    // remove password and refresh token field from response
     const createdUser = await User.findById(user._id).select(
         "-password -refreshToken"
     )
 
+    // check for user creation
     if(!createdUser){
         throw new ApiError(500, "Something went wrong while registering the user");
     }
 
+    // return res
     return res
     .status(201)
     .json( new ApiResponse(200, createdUser, "User created successfully"));
